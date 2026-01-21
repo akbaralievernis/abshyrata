@@ -44,14 +44,22 @@ export default function LoginPage() {
     setLoading(false);
 
     if (error) {
+      const isInvalid = error.message.toLowerCase().includes('invalid login credentials');
       notify({
         title: 'Ошибка входа',
-        description: error.message,
+        description: isInvalid
+          ? 'Неверный email или пароль. Проверьте, что пользователь создан в Supabase Auth и пароль совпадает.'
+          : error.message,
         variant: 'error'
       });
       return;
     }
 
+    const { data: userResult } = await supabase.auth.getUser();
+    if (userResult.user?.app_metadata?.role === 'admin') {
+      router.push('/admin');
+      return;
+    }
     notify({
       title: 'Успешный вход',
       description: 'Добро пожаловать в кабинет.',

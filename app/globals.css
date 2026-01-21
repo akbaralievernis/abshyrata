@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  @apply box-border;
+}
+
+body {
+  @apply antialiased bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100;
+  scroll-behavior: smooth;
+}
+
+section {
+  scroll-margin-top: 96px;
+}
+
+.glass {
+  @apply bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-slate-700/60 shadow-lg;
+}
+
+.bg-grid {
+  background-image: radial-gradient(circle at 1px 1px, rgba(148, 163, 184, 0.25) 1px, transparent 0);
+  background-size: 24px 24px;
+}

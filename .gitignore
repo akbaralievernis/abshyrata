@@ -5,3 +5,5 @@ dist
 .env.local
 .env
 .DS_Store
+NEXT_PUBLIC_SUPABASE_URL=https://ghvkjwyrfieduwbwkype.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_p77vfQi2Qk0L9EVWdgPx4g_XEbf6mYk

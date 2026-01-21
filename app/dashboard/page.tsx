@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { updateProfile } from '@/app/actions';
+import { SupabaseStatus } from '@/components/supabase-status';
 import { ScrollReveal } from '@/components/scroll-reveal';
 import { TagInput } from '@/components/tag-input';
 import { UploadAvatar } from '@/components/upload-avatar';
@@ -84,6 +85,7 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 px-4 py-12 md:px-6">
+      <SupabaseStatus />
       <ScrollReveal className="space-y-2">
         <h1 className="text-3xl font-semibold">Личный кабинет студента</h1>
         <p className="text-slate-600 dark:text-slate-300">

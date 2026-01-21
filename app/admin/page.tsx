@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import { createNewsPost } from '@/app/actions';
+import { SupabaseStatus } from '@/components/supabase-status';
 import { ScrollReveal } from '@/components/scroll-reveal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ import { adminAccount, newsPosts, semesterSubjects, studentAccounts, students, t
 export default function AdminPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-12 md:px-6">
+      <SupabaseStatus />
       <ScrollReveal className="space-y-2">
         <h1 className="text-3xl font-semibold">Админ-панель</h1>
         <p className="text-slate-600 dark:text-slate-300">
@@ -29,6 +31,25 @@ export default function AdminPage() {
             <p>Временный пароль: {adminAccount.tempPassword}</p>
             <p className="text-xs text-slate-500 dark:text-slate-400">
               После первого входа измените пароль в Supabase Auth.
+            </p>
+          </CardContent>
+        </Card>
+      </ScrollReveal>
+
+      <ScrollReveal>
+        <Card className="glass">
+          <CardHeader>
+            <CardTitle>Как активировать логины студентов</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
+            <ol className="list-inside list-decimal space-y-1">
+              <li>Откройте Supabase → Authentication → Users → Create User.</li>
+              <li>Введите email и временный пароль из списка ниже.</li>
+              <li>Скопируйте ID пользователя и обновите поле user_id в таблице profiles.</li>
+              <li>Для админа добавьте app_metadata.role = admin.</li>
+            </ol>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              После активации пользователи смогут входить на страницу /auth/login и попадут в кабинет.
             </p>
           </CardContent>
         </Card>

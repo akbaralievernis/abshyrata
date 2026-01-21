@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { students } from '@/lib/data';
 
-const skillFilters = ['Кибербезопасность', 'Фронтенд', 'Бэкенд', 'Данные'];
+const skillFilters = ['Кибербезопасность', 'Фронтенд', 'Бэкенд', 'Данные', 'UX'];
 
 export default function StudentsPage() {
   const [query, setQuery] = useState('');
@@ -63,7 +63,7 @@ export default function StudentsPage() {
       </ScrollReveal>
       <div className="grid gap-6 md:grid-cols-2">
         {loading
-          ? Array.from({ length: 4 }).map((_, index) => (
+          ? Array.from({ length: 6 }).map((_, index) => (
               <Skeleton key={index} className="h-40 rounded-2xl" />
             ))
           : filteredStudents.map((student) => <StudentCard key={student.id} {...student} />)}

@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/toast';
+import { semesterSubjects } from '@/lib/data';
 
 const profileSchema = z.object({
   profileId: z.string().min(1),
@@ -38,9 +39,9 @@ export default function DashboardPage() {
     resolver: zodResolver(profileSchema),
     defaultValues: {
       profileId: 'demo-profile-id',
-      fullName: 'Айса Токтосунова',
-      bio: 'Full-stack разработчик, работает над безопасными веб-системами.',
-      phone: '+996 555 123 456',
+      fullName: 'Акбаралиев Эрнис',
+      bio: 'Участвует в разработке учебных сервисов и защищённых веб-приложений.',
+      phone: '+996 555 010 001',
       skills: ['Next.js', 'TypeScript', 'Supabase'],
       phonePublic: true,
       emailPublic: false,
@@ -181,6 +182,21 @@ export default function DashboardPage() {
           </Card>
         </ScrollReveal>
       </div>
+
+      <ScrollReveal>
+        <Card className="glass">
+          <CardHeader>
+            <CardTitle>Учебные дисциплины (4 семестр)</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-slate-600 dark:text-slate-300">
+            <ul className="list-inside list-disc space-y-1">
+              {semesterSubjects[4].map((subject) => (
+                <li key={subject}>{subject}</li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      </ScrollReveal>
     </div>
   );
 }

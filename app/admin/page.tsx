@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { newsPosts, students, trips } from '@/lib/data';
+import { adminAccount, newsPosts, semesterSubjects, studentAccounts, students, trips } from '@/lib/data';
 
 export default function AdminPage() {
   return (
@@ -17,6 +17,21 @@ export default function AdminPage() {
         <p className="text-slate-600 dark:text-slate-300">
           Управление студентами, новостями и поездками группы АУБ-1-24.
         </p>
+      </ScrollReveal>
+
+      <ScrollReveal>
+        <Card className="glass">
+          <CardHeader>
+            <CardTitle>Админский доступ</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
+            <p>Логин: {adminAccount.login}</p>
+            <p>Временный пароль: {adminAccount.tempPassword}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              После первого входа измените пароль в Supabase Auth.
+            </p>
+          </CardContent>
+        </Card>
       </ScrollReveal>
 
       <div className="grid gap-6 md:grid-cols-3">
@@ -34,7 +49,7 @@ export default function AdminPage() {
                     </p>
                     <p className="text-xs">{student.role}</p>
                   </div>
-                  <Badge>Активен</Badge>
+                  <Badge>Семестр {student.semester}</Badge>
                 </div>
               ))}
               <Button asChild variant="outline" size="sm" className="w-full">
@@ -82,6 +97,44 @@ export default function AdminPage() {
           </Card>
         </ScrollReveal>
       </div>
+
+      <ScrollReveal>
+        <Card className="glass">
+          <CardHeader>
+            <CardTitle>Учетные записи студентов</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 text-sm text-slate-600 dark:text-slate-300">
+            {studentAccounts.map((account) => (
+              <div
+                key={account.id}
+                className="rounded-xl border border-slate-200 p-4 dark:border-slate-800"
+              >
+                <p className="font-medium text-slate-900 dark:text-slate-100">{account.fullName}</p>
+                <p>Логин: {account.login}</p>
+                <p>Временный пароль: {account.tempPassword}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Семестр: {account.semester}. Данные для первичного входа.
+                </p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </ScrollReveal>
+
+      <ScrollReveal>
+        <Card className="glass">
+          <CardHeader>
+            <CardTitle>Учебные дисциплины (4 семестр)</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
+            <ul className="list-inside list-disc space-y-1">
+              {semesterSubjects[4].map((subject) => (
+                <li key={subject}>{subject}</li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      </ScrollReveal>
 
       <ScrollReveal>
         <Card className="glass">

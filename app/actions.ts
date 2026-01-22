@@ -6,6 +6,9 @@ import { createSupabaseServerClient } from '@/lib/supabaseServer';
 
 export async function updateProfile(formData: FormData) {
   const supabase = createSupabaseServerClient();
+  if (!supabase) {
+    return { error: 'Supabase не настроен. Добавьте переменные окружения и перезапустите сервер.' };
+  }
   const profileId = formData.get('profileId')?.toString();
   const github = formData.get('github')?.toString();
   const linkedin = formData.get('linkedin')?.toString();
@@ -43,6 +46,9 @@ export async function updateProfile(formData: FormData) {
 
 export async function createNewsPost(formData: FormData) {
   const supabase = createSupabaseServerClient();
+  if (!supabase) {
+    return { error: 'Supabase не настроен. Добавьте переменные окружения и перезапустите сервер.' };
+  }
   const { error } = await supabase.from('posts').insert({
     title: formData.get('title'),
     content: formData.get('content'),

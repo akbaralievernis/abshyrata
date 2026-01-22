@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/toast';
 import { semesterSubjects } from '@/lib/data';
+import { createSupabaseBrowserClient } from '@/lib/supabaseClient';
 
 const profileSchema = z.object({
   profileId: z.string().min(1),
@@ -51,6 +52,52 @@ export default function DashboardPage() {
     }
   });
   const profileId = form.watch('profileId');
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      const supabase = createSupabaseBrowserClient();
+      const {
+        data: { user }
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        setIsLoadingProfile(false);
+        return;
+      }
+
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('id, full_name, bio, phone, phone_public, email_public, skills, socials')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error) {
+        notify({
+          title: 'Не удалось загрузить профиль',
+          description: error.message,
+          variant: 'error'
+        });
+        setIsLoadingProfile(false);
+        return;
+      }
+
+      form.reset({
+        profileId: profile.id,
+        fullName: profile.full_name || '',
+        bio: profile.bio || '',
+        phone: profile.phone || '',
+        skills: profile.skills || [],
+        phonePublic: profile.phone_public ?? false,
+        emailPublic: profile.email_public ?? false,
+        github: profile.socials?.github || '',
+        linkedin: profile.socials?.linkedin || ''
+      });
+      setIsLoadingProfile(false);
+    };
+
+    loadProfile();
+  }, [form, notify]);
 
   const onSubmit = (values: ProfileFormValues) => {
     setStatus(null);
@@ -119,15 +166,12 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">ID профиля (profiles.id)</label>
-                  <Input placeholder="UUID профиля из Supabase" {...form.register('profileId')} />
-                  {!profileId && (
-                    <p className="text-xs text-amber-600">
-                      Укажите ID профиля из таблицы profiles, иначе сохранение не сработает.
-                    </p>
-                  )}
-                </div>
+                {!profileId && (
+                  <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700">
+                    Профиль не найден. Проверьте, что ваш пользователь в Supabase Auth связан с
+                    таблицей profiles через поле user_id.
+                  </div>
+                )}
                 <UploadAvatar />
                 <div className="space-y-2">
                   <label className="text-sm font-medium">ФИО</label>
@@ -183,8 +227,8 @@ export default function DashboardPage() {
                   </label>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Button type="submit" disabled={isPending || !profileId}>
-                    Сохранить
+                  <Button type="submit" disabled={isPending || !profileId || isLoadingProfile}>
+                    {isLoadingProfile ? 'Загрузка...' : 'Сохранить'}
                   </Button>
                   {status && <p className="text-sm text-slate-600 dark:text-slate-300">{status}</p>}
                 </div>

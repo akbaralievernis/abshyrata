@@ -39,7 +39,7 @@ export default function DashboardPage() {
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      profileId: 'demo-profile-id',
+      profileId: '',
       fullName: 'Акбаралиев Эрнис',
       bio: 'Участвует в разработке учебных сервисов и защищённых веб-приложений.',
       phone: '+996 555 010 001',
@@ -50,6 +50,7 @@ export default function DashboardPage() {
       linkedin: ''
     }
   });
+  const profileId = form.watch('profileId');
 
   const onSubmit = (values: ProfileFormValues) => {
     setStatus(null);
@@ -118,7 +119,15 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <input type="hidden" {...form.register('profileId')} />
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">ID профиля (profiles.id)</label>
+                  <Input placeholder="UUID профиля из Supabase" {...form.register('profileId')} />
+                  {!profileId && (
+                    <p className="text-xs text-amber-600">
+                      Укажите ID профиля из таблицы profiles, иначе сохранение не сработает.
+                    </p>
+                  )}
+                </div>
                 <UploadAvatar />
                 <div className="space-y-2">
                   <label className="text-sm font-medium">ФИО</label>
@@ -174,7 +183,7 @@ export default function DashboardPage() {
                   </label>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Button type="submit" disabled={isPending}>
+                  <Button type="submit" disabled={isPending || !profileId}>
                     Сохранить
                   </Button>
                   {status && <p className="text-sm text-slate-600 dark:text-slate-300">{status}</p>}

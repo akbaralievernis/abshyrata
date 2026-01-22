@@ -166,7 +166,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                {!profileId && (
+                {!isLoadingProfile && !profileId && (
                   <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700">
                     Профиль не найден. Проверьте, что ваш пользователь в Supabase Auth связан с
                     таблицей profiles через поле user_id.

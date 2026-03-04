@@ -127,3 +127,9 @@ Details are defined in `supabase/schema.sql`.
 ---
 
 **AUB-1-24** — Osh State University · MFTIT Institute · PIiIB Department
+
+## 🧭 PHP + MySQL migration draft
+
+For a student-focused self-hosted stack without Supabase, see:
+- `docs/analysis-plan-ru.md` (full analysis + migration plan in Russian)
+- `php-student-portal/` (MVP starter on PHP + MySQL)

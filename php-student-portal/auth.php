@@ -1,10 +1,5 @@
 <?php
-
 declare(strict_types=1);
-
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
 
 function isLoggedIn(): bool
 {
@@ -14,12 +9,12 @@ function isLoggedIn(): bool
 function requireAuth(): void
 {
     if (!isLoggedIn()) {
-        header('Location: login.php');
-        exit;
+        flash_set('error', 'Сначала войдите в аккаунт.');
+        redirect('login.php');
     }
 }
 
-function currentUserId(): ?int
+function currentUserId()
 {
     return isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : null;
 }

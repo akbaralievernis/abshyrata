@@ -1,53 +1,66 @@
 <?php
-require __DIR__ . '/db.php';
-require __DIR__ . '/auth.php';
+require __DIR__ . '/bootstrap.php';
 
 $error = '';
 $ok = '';
+$fullName = '';
+$email = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $fullName = trim($_POST['full_name'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $password = (string) ($_POST['password'] ?? '');
-
-    if ($fullName === '' || $email === '' || $password === '') {
-        $error = 'Заполните все поля.';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = 'Неверный email.';
-    } elseif (mb_strlen($password) < 6) {
-        $error = 'Пароль должен быть минимум 6 символов.';
+    if (!csrf_validate($_POST['_csrf'] ?? '')) {
+        $error = 'CSRF ошибка. Обновите страницу.';
     } else {
-        $check = $pdo->prepare('SELECT id FROM users WHERE email = :email LIMIT 1');
-        $check->execute(['email' => $email]);
+        $fullName = trim((string) ($_POST['full_name'] ?? ''));
+        $email = trim((string) ($_POST['email'] ?? ''));
+        $password = (string) ($_POST['password'] ?? '');
 
-        if ($check->fetch()) {
-            $error = 'Пользователь с таким email уже существует.';
+        if ($fullName === '' || $email === '' || $password === '') {
+            $error = 'Заполните все поля.';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $error = 'Неверный email.';
+        } elseif (mb_strlen($password, 'UTF-8') < 6) {
+            $error = 'Пароль минимум 6 символов.';
         } else {
-            $hash = password_hash($password, PASSWORD_DEFAULT);
+            $pdo = db();
+            $check = $pdo->prepare('SELECT id FROM users WHERE email = :email LIMIT 1');
+            $check->execute(['email' => $email]);
 
-            $insertUser = $pdo->prepare(
-                'INSERT INTO users (full_name, email, password_hash, role) VALUES (:full_name, :email, :password_hash, :role)'
-            );
-            $insertUser->execute([
-                'full_name' => $fullName,
-                'email' => $email,
-                'password_hash' => $hash,
-                'role' => 'student',
-            ]);
+            if ($check->fetch()) {
+                $error = 'Email уже зарегистрирован.';
+            } else {
+                $hash = password_hash($password, PASSWORD_DEFAULT);
 
-            $userId = (int) $pdo->lastInsertId();
+                $pdo->beginTransaction();
+                try {
+                    $ins = $pdo->prepare(
+                        'INSERT INTO users (full_name, email, password_hash, role)
+                         VALUES (:full_name, :email, :password_hash, "student")'
+                    );
+                    $ins->execute([
+                        'full_name' => $fullName,
+                        'email' => $email,
+                        'password_hash' => $hash,
+                    ]);
 
-            $insertStudent = $pdo->prepare(
-                'INSERT INTO student_profiles (user_id, bio, skills, is_email_public) VALUES (:user_id, :bio, :skills, :is_email_public)'
-            );
-            $insertStudent->execute([
-                'user_id' => $userId,
-                'bio' => 'Новый студент на портале.',
-                'skills' => '',
-                'is_email_public' => 0,
-            ]);
+                    $uid = (int) $pdo->lastInsertId();
 
-            $ok = 'Регистрация успешна. Теперь войдите в систему.';
+                    $ins2 = $pdo->prepare(
+                        'INSERT INTO student_profiles (user_id, bio, skills, is_email_public)
+                         VALUES (:uid, :bio, :skills, 0)'
+                    );
+                    $ins2->execute([
+                        'uid' => $uid,
+                        'bio' => 'Новый студент.',
+                        'skills' => '',
+                    ]);
+
+                    $pdo->commit();
+                    $ok = 'Регистрация успешна. Теперь войдите.';
+                } catch (Exception $e) {
+                    $pdo->rollBack();
+                    $error = 'Ошибка регистрации.';
+                }
+            }
         }
     }
 }
@@ -61,21 +74,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="container">
+<div class="container narrow">
   <div class="card">
-    <h2>Регистрация студента</h2>
-    <?php if ($error !== ''): ?><div class="msg error"><?= htmlspecialchars($error) ?></div><?php endif; ?>
-    <?php if ($ok !== ''): ?><div class="msg ok"><?= htmlspecialchars($ok) ?></div><?php endif; ?>
+    <h2>Регистрация</h2>
+    <?php if ($error !== ''): ?><div class="msg error"><?= e($error) ?></div><?php endif; ?>
+    <?php if ($ok !== ''): ?><div class="msg ok"><?= e($ok) ?></div><?php endif; ?>
+
     <form method="post">
+      <input type="hidden" name="_csrf" value="<?= e(csrf_token()) ?>">
       <label>ФИО</label>
-      <input name="full_name" required>
+      <input name="full_name" value="<?= e($fullName) ?>" required>
       <label>Email</label>
-      <input type="email" name="email" required>
+      <input type="email" name="email" value="<?= e($email) ?>" required>
       <label>Пароль</label>
       <input type="password" name="password" required>
-      <button type="submit">Зарегистрироваться</button>
+      <button class="btn w100" type="submit">Зарегистрироваться</button>
     </form>
-    <p><a href="login.php">Уже есть аккаунт? Войти</a></p>
+
+    <p class="muted"><a href="login.php">Уже есть аккаунт? Войти</a></p>
+    <p class="muted"><a href="index.php">На главную</a></p>
   </div>
 </div>
 </body>
